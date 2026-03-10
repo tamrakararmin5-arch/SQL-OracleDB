@@ -1,0 +1,57 @@
+
+CREATE TABLE Department (
+    DNo NUMBER(10) PRIMARY KEY,
+    Dname VARCHAR2(50),
+    MgrSSN CHAR(9),
+    MgrStartDate DATE
+);
+
+CREATE TABLE Employee (
+    FName VARCHAR2(50),
+    LName VARCHAR2(50),
+    SSN CHAR(9) PRIMARY KEY,
+    BDate DATE,
+    Address VARCHAR2(100),
+    Sex CHAR(1),
+    Salary NUMBER(10,2),
+    SuperSSN CHAR(9),
+    DNo NUMBER(10),
+    CONSTRAINT fk_dept FOREIGN KEY (DNo) REFERENCES Department(DNo)
+);
+
+-- Oracle does not support the (val1), (val2) syntax for INSERT
+INSERT INTO Department VALUES (1,'Research','333445555', TO_DATE('2020-05-22', 'YYYY-MM-DD'));
+INSERT INTO Department VALUES (2,'Accounts','987654321', TO_DATE('2019-03-15', 'YYYY-MM-DD'));
+INSERT INTO Department VALUES (5,'Administration','123456789', TO_DATE('2021-07-10', 'YYYY-MM-DD'));
+
+INSERT INTO Employee VALUES ('John','Smith','123456789', TO_DATE('1995-01-09', 'YYYY-MM-DD'),'Houston, TX','M',30000,NULL,5);
+INSERT INTO Employee VALUES ('Franklin','Wong','333445555', TO_DATE('1990-12-08', 'YYYY-MM-DD'),'Bellaire, TX','M',40000,'123456789',1);
+INSERT INTO Employee VALUES ('Alicia','Zelaya','999887777', TO_DATE('1998-07-19', 'YYYY-MM-DD'),'Spring, TX','F',25000,'333445555',1);
+INSERT INTO Employee VALUES ('Jennifer','Wallace','987654321', TO_DATE('1992-06-20', 'YYYY-MM-DD'),'Houston, TX','F',43000,'333445555',2);
+INSERT INTO Employee VALUES ('Ramesh','Narayan','666884444', TO_DATE('1996-09-15', 'YYYY-MM-DD'),'Humble, TX','M',38000,'987654321',2);
+INSERT INTO Employee VALUES ('Joyce','English','453453453', TO_DATE('1997-03-31', 'YYYY-MM-DD'),'Houston, TX','F',25000,'987654321',1);
+INSERT INTO Employee VALUES ('Ahmad','Jabbar','987987987', TO_DATE('1994-11-02', 'YYYY-MM-DD'),'Houston, TX','M',25000,'333445555',5);
+
+SELECT FName, LName, Salary, Salary * 1.10 AS Increased_Salary
+FROM Employee
+WHERE DNo = (SELECT DNo FROM Department WHERE Dname = 'Research');
+
+SELECT SUM(Salary), MAX(Salary), MIN(Salary), AVG(Salary)
+FROM Employee
+WHERE DNo = (SELECT DNo FROM Department WHERE Dname = 'Accounts');
+
+SELECT FName, LName FROM Employee E
+WHERE EXISTS (SELECT 1 FROM Department D WHERE D.DNo = 5 AND E.DNo = D.DNo);
+
+SELECT D.Dname, COUNT(*)
+FROM Employee E
+JOIN Department D ON E.DNo = D.DNo
+GROUP BY D.Dname
+HAVING COUNT(*) >= 2;
+
+SELECT FName, LName FROM Employee 
+WHERE BDate BETWEEN TO_DATE('1990-01-01', 'YYYY-MM-DD') AND TO_DATE('1999-12-31', 'YYYY-MM-DD');
+
+SELECT E.FName, E.LName, D.Dname
+FROM Employee E
+JOIN Department D ON E.DNo = D.DNo;
